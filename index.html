@@ -171,6 +171,7 @@ body.light #game{
   align-items:center;
   justify-content:center;
   z-index:50;
+  overflow-y:auto;
 }
 
 .tilesContent{
@@ -178,14 +179,12 @@ body.light #game{
   padding:30px;
   border-radius:20px;
   width:min(90vw,400px);
-  height:min(90vh,400px);
+  max-height:90vh;
+  text-align:center;
+  position:relative;
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(70px,1fr));
+  grid-template-columns:repeat(auto-fill,minmax(100px,1fr));
   gap:15px;
-  overflow-y:auto;
-  overflow-x:hidden;
-  justify-items:center;
-  align-items:center;
 }
 
 body.light .tilesContent{
@@ -205,12 +204,20 @@ body.light .tilesContent{
 
 .tile-entry{
   display:flex;
-  flex-direction:column;
+  flex-direction:row;
   align-items:center;
   justify-content:center;
-  gap:5px;
+  gap:10px;
+  padding:10px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.08);
 }
-.tile-entry span{
+.tile-entry .tile{
+  width:40px !important;
+  font-size:16px !important;
+  aspect-ratio:1/1;
+}
+.tile-entry div:last-child{
   font-weight:600;
 }
 </style>
@@ -408,11 +415,8 @@ function openTiles(){
     tile.className="tile";
     tile.setAttribute("data-value",val);
     tile.textContent=val;
-    tile.style.width="50px";
-    tile.style.height="50px";
-    tile.style.fontSize="16px";
 
-    const status=document.createElement("span");
+    const status=document.createElement("div");
     status.textContent=unlocked.includes(val) ? "Unlocked" : "Locked";
     status.style.color=unlocked.includes(val) ? "lime" : "gray";
 
@@ -428,13 +432,21 @@ function closeTiles(){
   document.getElementById("tilesPanel").style.display="none";
 }
 
-document.addEventListener("keydown",e=>{
-  if(["ArrowLeft","ArrowUp","ArrowRight","ArrowDown"].includes(e.key)) e.preventDefault(); // FIX
-  if(e.key==="ArrowLeft") move(0);
-  if(e.key==="ArrowUp") move(1);
-  if(e.key==="ArrowRight") move(2);
-  if(e.key==="ArrowDown") move(3);
-});
+/* ===== Arrow Keys Fix for GitHub Pages ===== */
+
+window.addEventListener("keydown", function(e){
+  if(["ArrowLeft","ArrowUp","ArrowRight","ArrowDown"].includes(e.key)){
+    e.preventDefault();
+    switch(e.key){
+      case "ArrowLeft": move(0); break;
+      case "ArrowUp": move(1); break;
+      case "ArrowRight": move(2); break;
+      case "ArrowDown": move(3); break;
+    }
+  }
+}, {passive: false});
+
+/* ===== Touch Controls ===== */
 
 let startX,startY;
 game.addEventListener("touchstart",e=>{
@@ -457,4 +469,4 @@ init();
 </script>
 
 </body>
-</html>
+  </html>
