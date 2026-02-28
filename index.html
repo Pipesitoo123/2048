@@ -91,6 +91,7 @@ button{
   gap:12px;
   backdrop-filter:blur(15px);
   position:relative;
+  touch-action: none;
 }
 
 body.dark #game{
@@ -162,6 +163,7 @@ body.light #game{
 }
 
 /* ===== Tiles Panel ===== */
+
 #tilesPanel{
   position:fixed;
   inset:0;
@@ -180,9 +182,10 @@ body.light #game{
   max-height:80vh;
   overflow-y:auto;
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(80px,1fr));
-  gap:15px;
+  grid-template-columns:repeat(auto-fit,minmax(100px,1fr));
+  gap:12px;
   justify-items:center;
+  align-items:center;
 }
 
 body.light .tilesContent{
@@ -202,16 +205,14 @@ body.light .tilesContent{
 
 .tile-entry{
   display:flex;
-  flex-direction:column;
   align-items:center;
   justify-content:center;
-  padding:6px;
-  border-radius:12px;
-  background:rgba(255,255,255,0.08);
+  gap:10px;
 }
-.tile-entry span{
-  font-weight:600;
-  margin-top:4px;
+.tile-entry .tile{
+  width:50px;
+  font-size:16px;
+  aspect-ratio:1/1;
 }
 </style>
 </head>
@@ -274,6 +275,12 @@ function toggleTheme(){
 }
 
 function init(){
+  // Unlock 2 automatically
+  if(!unlocked.includes(2)){
+    unlocked.push(2);
+    localStorage.setItem("unlockedTiles2048", JSON.stringify(unlocked));
+  }
+
   board=Array(size).fill().map(()=>Array(size).fill(0));
   score=0;
   overlay.style.display="none";
@@ -326,7 +333,7 @@ function slide(row){
 
       if(!unlocked.includes(row[i])){
         unlocked.push(row[i]);
-        localStorage.setItem("unlockedTiles2048",JSON.stringify(unlocked));
+        localStorage.setItem("unlockedTiles2048", JSON.stringify(unlocked));
       }
     }
   }
@@ -391,6 +398,7 @@ function confettiExplosion(){
 }
 
 /* ===== Tiles Panel Functions ===== */
+
 function openTiles(){
   const panel=document.getElementById("tilesPanel");
   const container=document.getElementById("tilesContainer");
@@ -407,12 +415,10 @@ function openTiles(){
     tile.className="tile";
     tile.setAttribute("data-value",val);
     tile.textContent=val;
-    tile.style.width="60px";
-    tile.style.height="60px";
-    tile.style.fontSize="18px";
 
-    const status=document.createElement("span");
+    const status=document.createElement("div");
     status.textContent=unlocked.includes(val) ? "Unlocked" : "Locked";
+    status.style.fontWeight="600";
     status.style.color=unlocked.includes(val) ? "lime" : "gray";
 
     entry.appendChild(tile);
@@ -427,11 +433,6 @@ function closeTiles(){
   document.getElementById("tilesPanel").style.display="none";
 }
 
-/* ===== Prevent Mobile Refresh on Swipe ===== */
-game.addEventListener("touchmove", e => {
-  e.preventDefault();
-}, { passive: false });
-
 document.addEventListener("keydown",e=>{
   if(e.key==="ArrowLeft") move(0);
   if(e.key==="ArrowUp") move(1);
@@ -440,19 +441,19 @@ document.addEventListener("keydown",e=>{
 });
 
 let startX,startY;
-game.addEventListener("touchstart", e => {
-  startX = e.touches[0].clientX;
-  startY = e.touches[0].clientY;
+game.addEventListener("touchstart",e=>{
+  startX=e.touches[0].clientX;
+  startY=e.touches[0].clientY;
 });
-game.addEventListener("touchend", e => {
-  let dx = e.changedTouches[0].clientX - startX;
-  let dy = e.changedTouches[0].clientY - startY;
-  if (Math.abs(dx) > Math.abs(dy)) {
-    if (dx > 30) move(2);
-    else if (dx < -30) move(0);
-  } else {
-    if (dy > 30) move(3);
-    else if (dy < -30) move(1);
+game.addEventListener("touchend",e=>{
+  let dx=e.changedTouches[0].clientX-startX;
+  let dy=e.changedTouches[0].clientY-startY;
+  if(Math.abs(dx)>Math.abs(dy)){
+    if(dx>30) move(2);
+    else if(dx<-30) move(0);
+  }else{
+    if(dy>30) move(3);
+    else if(dy<-30) move(1);
   }
 });
 
@@ -460,4 +461,4 @@ init();
 </script>
 
 </body>
-</html>
+  </html>
